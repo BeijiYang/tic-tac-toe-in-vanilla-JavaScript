@@ -24,16 +24,12 @@
   ];
   let curMove = 1;
 
-  const container = document.getElementById('container');
-  container.setAttribute('style', `min-width: ${3 * gridSize + 6 * gridMargin}px`);
-  const fragment = document.createDocumentFragment();
-
   const updateBoard = (position, value) =>
     board[position.charAt(0)][position.charAt(1)] = value;
 
   const handleClick = evt => {
-    const { value } = evt.target;
-    if (value) return;
+    const { innerHTML } = evt.target;
+    if (innerHTML) return;
     evt.target.innerHTML = curMove === 1 ? 'x' : 'o';
     updateBoard(evt.target.id, curMove);
     const win = judge(board, curMove);
@@ -89,21 +85,29 @@
     }
   }
 
-  board.forEach((line, i) => {
-    line.forEach((position, j) => {
-      const grid = document.createElement('div');
-      grid.setAttribute('class', 'grid');
-      grid.setAttribute('id', `${i}${j}`);
-      grid.setAttribute('style', `display: inline-flex; justify-content: center; align-items: center; vertical-align: middle; width: ${gridSize}px; height: ${gridSize}px; background-color: ${boardColor}; color: ${pieceColor}; margin: ${gridMargin}px; font-size: ${Math.floor(gridSize / 2)}px;`);
-      grid.innerHTML = position === 0 ? '' :
-        position === 1 ? 'x' : 'o';
+  const render = board => {
+    const container = document.getElementById('container');
+    container.setAttribute('style', `min-width: ${3 * gridSize + 6 * gridMargin}px`);
+    const fragment = document.createDocumentFragment();
 
-      grid.addEventListener('click', handleClick);
-      fragment.appendChild(grid);
+    board.forEach((line, i) => {
+      line.forEach((position, j) => {
+        const grid = document.createElement('div');
+        grid.setAttribute('class', 'grid');
+        grid.setAttribute('id', `${i}${j}`);
+        grid.setAttribute('style', `display: inline-flex; justify-content: center; align-items: center; vertical-align: middle; width: ${gridSize}px; height: ${gridSize}px; background-color: ${boardColor}; color: ${pieceColor}; margin: ${gridMargin}px; font-size: ${Math.floor(gridSize / 2)}px;`);
+        grid.innerHTML = position === 0 ? '' :
+          position === 1 ? 'x' : 'o';
+
+        grid.addEventListener('click', handleClick);
+        fragment.appendChild(grid);
+      });
+      fragment.appendChild(document.createElement('br'));
     });
-    fragment.appendChild(document.createElement('br'));
-  });
-  container.appendChild(fragment);
+    container.appendChild(fragment);
+  }
+
+  render(board);
 </script>
 
 </html>
