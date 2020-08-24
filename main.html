@@ -36,7 +36,57 @@
     if (value) return;
     evt.target.innerHTML = curMove === 1 ? 'x' : 'o';
     updateBoard(evt.target.id, curMove);
-    curMove = 3 - curMove;
+    const win = judge(board, curMove);
+    if (win) {
+      setTimeout(() => alert('You win!'), 0);
+    } else {
+      curMove = 3 - curMove;
+    }
+  }
+
+  const judge = (board, curMove) => {
+    // three lines
+    for (let i = 0; i < 3; i++) {
+      let win = true;
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j] !== curMove) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return win;
+    }
+    // three columns
+    for (let i = 0; i < 3; i++) {
+      let win = true;
+      for (let j = 0; j < 3; j++) {
+        if (board[j][i] !== curMove) {
+          win = false;
+          break;
+        }
+      }
+      if (win) return win;
+    }
+    // ↘
+    {
+      let win = true;
+      for (let i = 0; i < 3; i++) {
+        if (board[i][i] !== curMove) {
+          win = false;
+        }
+      }
+      if (win) return win;
+    }
+    // ↙ 02 11 20 sum is two
+    {
+      let win = true;
+      for (let i = 0; i < 3; i++) {
+        if (board[i][2 - i] !== curMove) {
+          win = false;
+        }
+      }
+      if (win) return win;
+    }
   }
 
   board.forEach((line, i) => {
