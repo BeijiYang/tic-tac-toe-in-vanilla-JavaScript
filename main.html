@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>tic-tac-toe</title>
+</head>
+
+<body>
+  <div id="container" />
+</body>
+<script>
+  const gridSize = 100;
+  const gridMargin = 1;
+  const boardColor = '#00796B';
+  const pieceColor = '#CDDC39';
+
+  const board = [
+    [0, 0, 0],
+    [0, 1, 2],
+    [0, 0, 0],
+  ];
+  const container = document.getElementById('container');
+  container.setAttribute('style', `min-width: ${3 * gridSize + 6 * gridMargin}px`);
+  const fragment = document.createDocumentFragment();
+
+  board.forEach(line => {
+    line.forEach(position => {
+      const grid = document.createElement('div');
+      grid.setAttribute('class', 'grid');
+      grid.setAttribute('style', `display: inline-flex; justify-content: center; align-items: center; vertical-align: middle; width: ${gridSize}px; height: ${gridSize}px; background-color: ${boardColor}; color: ${pieceColor}; margin: ${gridMargin}px; font-size: ${Math.floor(gridSize / 2)}px;`);
+
+      grid.innerHTML = position === 0 ? '' :
+        position === 1 ? 'X' : 'O';
+      fragment.appendChild(grid);
+    });
+    fragment.appendChild(document.createElement('br'));
+  }
+  );
+  container.appendChild(fragment);
+</script>
+
+</html>
