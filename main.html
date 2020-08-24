@@ -32,6 +32,7 @@
       setTimeout(() => alert('You win!'), 0);
     } else {
       curMove = 3 - curMove;
+      predictWinner(board, curMove);
     }
     render(board);
   }
@@ -78,6 +79,22 @@
         }
       }
       if (win) return win;
+    }
+  }
+
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+
+  const predictWinner = (board, move) => {
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j]) break;
+        const cpBoard = clone(board);
+        cpBoard[i][j] = move;
+        if (judge(cpBoard, move)) {
+          console.log('You will win!')
+          return;
+        }
+      }
     }
   }
 
