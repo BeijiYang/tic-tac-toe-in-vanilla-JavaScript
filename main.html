@@ -24,20 +24,16 @@
   ];
   let curMove = 1;
 
-  const updateBoard = (position, value) =>
-    board[position.charAt(0)][position.charAt(1)] = value;
-
-  const handleClick = evt => {
-    const { innerHTML } = evt.target;
-    if (innerHTML) return;
-    evt.target.innerHTML = curMove === 1 ? 'x' : 'o';
-    updateBoard(evt.target.id, curMove);
+  const handleClick = (lineIdx, columnIdx) => {
+    if (board[lineIdx][columnIdx]) return;
+    board[lineIdx][columnIdx] = curMove;
     const win = judge(board, curMove);
     if (win) {
       setTimeout(() => alert('You win!'), 0);
     } else {
       curMove = 3 - curMove;
     }
+    render(board);
   }
 
   const judge = (board, curMove) => {
@@ -87,19 +83,19 @@
 
   const render = board => {
     const container = document.getElementById('container');
+    container.innerHTML = '';
     container.setAttribute('style', `min-width: ${3 * gridSize + 6 * gridMargin}px`);
     const fragment = document.createDocumentFragment();
 
-    board.forEach((line, i) => {
-      line.forEach((position, j) => {
+    board.forEach((line, lineIdx) => {
+      line.forEach((position, columnIdx) => {
         const grid = document.createElement('div');
-        grid.setAttribute('class', 'grid');
-        grid.setAttribute('id', `${i}${j}`);
+        grid.classList.add('grid');
         grid.setAttribute('style', `display: inline-flex; justify-content: center; align-items: center; vertical-align: middle; width: ${gridSize}px; height: ${gridSize}px; background-color: ${boardColor}; color: ${pieceColor}; margin: ${gridMargin}px; font-size: ${Math.floor(gridSize / 2)}px;`);
-        grid.innerHTML = position === 0 ? '' :
+        grid.innerText = position === 0 ? '' :
           position === 1 ? 'x' : 'o';
 
-        grid.addEventListener('click', handleClick);
+        grid.addEventListener('click', () => handleClick(lineIdx, columnIdx));
         fragment.appendChild(grid);
       });
       fragment.appendChild(document.createElement('br'));
