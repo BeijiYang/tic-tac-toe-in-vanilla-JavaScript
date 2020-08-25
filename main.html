@@ -18,26 +18,39 @@
   const pieceColor = '#CDDC39';
 
   const board = [
-    [0, 0, 0],
-    [0, 1, 2],
+    [0, 2, 0],
+    [0, 1, 0],
     [0, 0, 0],
   ];
   let curMove = 1;
 
-  const handleClick = (lineIdx, columnIdx) => {
+  const userMove = (lineIdx, columnIdx) => {
     if (board[lineIdx][columnIdx]) return;
     board[lineIdx][columnIdx] = curMove;
-    const win = judge(board, curMove);
-    if (win) {
+    if (win(board, curMove)) {
       setTimeout(() => alert('You win!'), 0);
     } else {
       curMove = 3 - curMove;
-      predictWinner(board, curMove);
+      aiMove();
     }
+    render(board);
+    console.log(bestChoice(board, curMove));
+  }
+
+  const aiMove = () => {
+    const { position } = bestChoice(board, curMove);
+    if (position) {
+      console.log(position)
+      board[position[0]][position[1]] = curMove;
+    }
+    if (win(board, curMove)) {
+      setTimeout(() => alert('I win!'), 0);
+    }
+    curMove = 3 - curMove;
     render(board);
   }
 
-  const judge = (board, curMove) => {
+  const win = (board, curMove) => {
     // three lines
     for (let i = 0; i < 3; i++) {
       let win = true;
@@ -84,17 +97,84 @@
 
   const clone = obj => JSON.parse(JSON.stringify(obj));
 
-  const predictWinner = (board, move) => {
+  const willWinNext = (board, move) => {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        if (board[i][j]) break;
+        if (board[i][j]) continue;
         const cpBoard = clone(board);
         cpBoard[i][j] = move;
-        if (judge(cpBoard, move)) {
-          console.log('You will win!')
-          return;
+        if (win(cpBoard, move)) {
+          return [i, j];
         }
       }
+    }
+    return null;
+  }
+
+  let t = [];
+
+  // 就是这个函数
+  // win 1; lose -1; draw 0;
+  const bestChoice = (board, move) => {
+    let position = null;
+    // 特殊情况，当前方curmove落一子就赢了 （递归跳出的条件）
+    if (position = willWinNext(board, move)) { // 赋值语句的返回值是等号右边的值
+      return {
+        position,
+        result: 1
+      }
+    }
+    // ---------------------------------------------------------------
+    // // 如果 curmove 当前方不能一子致胜，就开始针对所有能走的空格进行判断
+    // // 思路：当本方走了这一步以后，看对方面临的局面如何。选择让对方最难受的方案。
+    // let result = Infinity;
+    // for (let i = 0; i < 3; i++) {
+    //   for (let j = 0; j < 3; j++) {
+    //     // 滤去不空的格
+    //     if (board[i][j]) continue;
+    //     // 假设本方走了这个空格
+    //     const cpBoard = clone(board);
+    //     cpBoard[i][j] = move;
+    //     // 预测这种情况下对方的局面
+    //     let { result: predictedResult } = bestChoice(cpBoard, 3 - move);
+    //     t.push(predictedResult)
+    //     // 选择对方最差局面
+    //     if (predictedResult < result) {
+    //       result = predictedResult;
+    //       position = [i, j] // ij 是这一步的，而 predictedPosition 是预想中这一步走完，对方走的。所以是返回 ij
+    //     }
+    //     // win-lost   剪枝   保证赢，不保证赢最多
+    //     // if (result === 1) {}
+    //   }
+    // }
+    // ---------------------------------------------------------------
+    // 思路：本方走了这一步以后，看对方面临的局面如何。选择让对方最难受的方案。
+    let result = -Infinity;
+    outer: for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        // 滤去不空的格
+        if (board[i][j]) continue;
+        // 假设本方走了这个空格
+        const cpBoard = clone(board);
+        cpBoard[i][j] = move;
+        // 预测这种情况下对方的局面
+        let { result: predictedResult } = bestChoice(cpBoard, 3 - move);
+        // if (predictedResult === -0) predictedResult = 0;
+        t.push(predictedResult)
+        // 选择对方最差局面
+        if (-predictedResult > result) {
+          result = -predictedResult;
+          position = [i, j] // ij 是这一步的，而 predictedPosition 是预想中这一步走完，对方走的。所以是返回 ij
+        }
+        // win - lost   剪枝   保证赢，不保证赢最多
+        if (result === 1) break outer;
+      }
+    }
+    // ---------------------------------------------------------------
+    return {
+      position,
+      // 处理平局时，无子可走，position 为空，result 为 2 的情况
+      result: position ? result : 0
     }
   }
 
@@ -112,7 +192,7 @@
         grid.innerText = position === 0 ? '' :
           position === 1 ? 'x' : 'o';
 
-        grid.addEventListener('click', () => handleClick(lineIdx, columnIdx));
+        grid.addEventListener('click', () => userMove(lineIdx, columnIdx));
         fragment.appendChild(grid);
       });
       fragment.appendChild(document.createElement('br'));
@@ -121,6 +201,8 @@
   }
 
   render(board);
+  console.log(bestChoice(board, curMove));
+  console.log(t)
 </script>
 
 </html>
