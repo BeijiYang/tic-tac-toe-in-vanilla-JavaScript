@@ -124,8 +124,6 @@
     return null;
   }
 
-  // let t = [];
-
   // win 1; lose -1; draw 0;
   const bestChoice = (board, move) => {
     let position = null;
@@ -147,7 +145,7 @@
         cpBoard[getBoardIndex(i, j)] = move;
         // 预测这种情况下对方的局面
         let { result: predictedResult } = bestChoice(cpBoard, 3 - move);
-        // 选择对方最差局面
+        // 选择对方最差局面。因为对方会走最有利于它的棋，我们只能取得最大的数（result），不知道最小的数。要通过最大的数，选出最小（最差）的结果，所以取负数。
         if (-predictedResult > result) {
           result = -predictedResult;
           position = [i, j] // ij 是这一步的，而 predictedPosition 是预想中这一步走完，对方走的。所以是返回 ij
